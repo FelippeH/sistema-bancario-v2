@@ -1,4 +1,4 @@
-## Sistema Bancário em Python – Versão 2.0
+## Sistema Bancário em Python – v2
 
 Esta é a segunda versão do projeto de sistema bancário desenvolvido em python, com foco em aprimoramento estrutural e boas práticas de programação.
 
