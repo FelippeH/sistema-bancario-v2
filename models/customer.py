@@ -20,7 +20,8 @@ class Customer:
         
 # classe que representa um cliente pessoa física, herda de customer
 class Individual(Customer):
-    def __init__(self, cpf, name, address):
+    def __init__(self, cpf, name, address, password):
         super().__init__(address) # chama o construtor da superclasse customer para inicializar o endereço
         self.cpf = cpf
         self.name = name
+        self.password = password

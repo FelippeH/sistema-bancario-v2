@@ -1,3 +1,4 @@
+from ast import While
 from models.transaction import Deposit, Withdrawal
 from models.account import CheckingAccount
 from models.customer import Individual
@@ -15,32 +16,59 @@ menu = """
 [5] Sacar
 [6] Extrato
 [0] Sair
+========================
+Digite a opção desejada:
 => """
 
-# Função auxiliar para encontrar um cliente pelo CPF
-def find_customer_by_cpf(cpf, customers):
+# Método para encontrar um cliente pelo CPF
+# aqui eu utilizo esse método apenas no create_user
+def find_customer_by_cpf_only(cpf, customers):
     for customer in customers:
         if isinstance(customer, Individual) and customer.cpf == cpf:
             return customer
     return None
 
+# Método para encontrar um cliente pelo CPF e senha
+# aqui eu utilizo esse método apenas no create_checking_account
+def find_customer_by_cpf_and_password(cpf, password, customers):
+    for customer in customers:
+        if isinstance(customer, Individual) and customer.cpf == cpf and customer.password == password:
+            return customer
+    return None
+
+# Método para encontrar um cliente apenas pela senha
+# aqui eu utilizo esse método para solicitar o depósito, saque e exibir extrato. Pois como o cliente já está autenticado, não é necessário verificar o CPF.
+def find_customer_by_password_only(password, customers):
+    for customer in customers:
+        if isinstance(customer, Individual) and customer.password == password:
+            return customer
+    return None
+
 # Método para criar um novo usuário [1]
 def create_user():
-    cpf = input("Digite seu CPF: ").strip()
-    customer = find_customer_by_cpf(cpf, customers)
-    
-    # Verifica se o CPF já está cadastrado
-    if customer:
+    cpf = input("\nInforme seu CPF: ").strip()
+    customer_obj = find_customer_by_cpf_only(cpf, customers)
+
+    if customer_obj:
         print("\n❌ Já existe um cliente com o CPF informado.")
-        
+
     # Se o CPF não estiver cadastrado, solicita os dados do cliente
     else:
-        name = input("Digite seu nome: ")
-        address = input("Digite seu endereco: ")
-        password = input("Crie uma senha: ")
+        name = input("Informe seu nome completo: ")
+        address = input("Informe o logradouro: ")
+        address += ", " + input("Informe o número: ")
+        address += ", " + input("Informe o bairro: ")
+        address += ", " + input("Informe a cidade: ")
+        address += ", " + input("Informe o CEP: ")
         
-    new_customer = Individual(cpf=cpf, name=name, address=address)
-    new_customer.password = password
+        # verifica se a senha tem pelo menos 6 caracteres
+        while True:
+            password = input("\nCrie uma senha (a senha deve ter no mínmo 6 caracteres): ").strip()
+            if len(password) >= 6:
+                break
+            print("❌ Senha muito curta. A senha deve ter no mínimo 6 caracteres.")
+
+    new_customer = Individual(cpf=cpf, name=name, address=address, password=password)
     
     # Adiciona o novo cliente à lista de clientes
     customers.append(new_customer)
@@ -48,43 +76,46 @@ def create_user():
 
 # Método para criar uma conta corrente [2]
 def create_checking_account():
-    cpf = input("Informe o CPF do cliente: ").strip()
-    customer = find_customer_by_cpf(cpf, customers)
-
-    if not customer:
-        print("❌ Cliente não encontrado.")
+    cpf = input("\nInforme o seu CPF: ").strip()
+    password = input("Digite sua senha: ").strip()
+    customer_obj = find_customer_by_cpf_and_password(cpf, password, customers)
+    # verifica se o cliente existe, fazendo validação do CPF e senha
+    if not customer_obj:
+        print("\n❌ Cliente não encontrado.")
         return
 
     account_number = len(accounts) + 1
-    new_account = CheckingAccount(number=account_number, customer=customer)
+    new_account = CheckingAccount(number=account_number, customer=customer_obj)
 
     accounts.append(new_account)
-    customer.add_account(new_account)
+    customer_obj.add_account(new_account)
 
-    print("✅ Conta criada com sucesso.")
+    print("\n✅ Conta criada com sucesso.")
 
 # Método para listar contas [3]
 def list_accounts():
-    if not accounts:
-        print("\n❌ Nenhuma conta corrente cadastrada.")
-        return
-    if not customers:
-        print("\n❌ Nenhum cliente cadastrado.")
+    cpf = input("\nInforme o seu CPF: ").strip()
+    password = input("Digite sua senha: ").strip()
+    customer_obj = find_customer_by_cpf_and_password(cpf, password, customers)
+
+    if not customer_obj:
+        print("\n❌ Cliente não encontrado.")
         return
     
 # Exibe as contas cadastradas
-    print("\n======= CONTAS =======")
+    print("\n======= CONTAS =========")
     for account in accounts:
         print(f"Conta: {account.number}, Cliente: {account.customer.name}, Saldo: R$ {account.balance:.2f}")
+    print("========================")
 
 # método de depósito [4]
 def deposit():
-    cpf = input("Digite seu CPF: ").strip()
-    customer_obj = find_customer_by_cpf(cpf, customers)
+    password = input("\nEntre com a sua senha: ").strip()
+    customer_obj = find_customer_by_password_only(password, customers)
 
     # Verifica se o cliente existe
     if not customer_obj:
-        print(f"\n❌ Nenhum usuário encontrado com o CPF: {cpf}.")
+        print(f"\n❌ Senha incorreta.")
         print("Verifique as informações, e tente novamente.")
         return
     
@@ -111,11 +142,11 @@ def deposit():
 
 # método de saque [5]
 def withdrawal():
-    cpf = input("Digite seu CPF: ").strip()
-    customer_obj = find_customer_by_cpf(cpf, customers)
+    password = input("\nEntre com a sua senha: ").strip()
+    customer_obj = find_customer_by_password_only(password, customers)
 
     if not customer_obj:
-        print(f"\n❌ Nenhum usuário encontrado com o CPF: {cpf}.")
+        print(f"\n❌ Senha incorreta.")
         print("Verifique as informações, e tente novamente.")
         return
     
@@ -149,12 +180,12 @@ def withdrawal():
     
 # método de extrato [6]
 def show_extract():
-    cpf = input("Digite seu CPF: ").strip()
-    account = find_customer_by_cpf(cpf, customers)
+    password = input("\nEntre com a sua senha: ").strip()
+    account = find_customer_by_password_only(password, customers)
 
     # Verifica se o cliente existe
     if not account:
-        print(f"\n❌ Nenhum usuário encontrado com o CPF: {cpf}.")
+        print(f"\n❌ Senha incorreta.")
         print("Verifique as informações, e tente novamente.")
         return
     # Verifica se o cliente possui contas
@@ -164,9 +195,10 @@ def show_extract():
 
     # Exibe o histórico de transações da primeira conta do cliente
     account = account.accounts[0]
-    print("\n======= EXTRATO =======")
+    print("\n======= EXTRATO ========")
     account.history.show()
     print(f"\nSaldo atual: R$ {account.balance:.2f}")
+    print("========================")
 
 # Loop principal do menu
 while True:
