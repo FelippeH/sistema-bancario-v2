@@ -47,3 +47,19 @@ O menu.py torna o sistema funcional para o usuário, permitindo que o mesmo nave
 
 ### - main.py
 Responsável por iniciar a aplicação. Importa os módulos necessários, exibe o menu ao usuário e inicia o fluxo principal do programa. Em projetos maiores, esse arquivo costuma ser o ponto de entrada para execução e testes da aplicação.
+
+##
+
+### Features previstas para a v3:
+- Sistema de cadastro e login completos.
+- Substituir armazenamento em memória por banco de dados relacional.
+- Autenticação segura para o usuário.
+- Permitir que o usuário gerencie várias contas correntes.
+- Melhor feedback e navegação para múltiplas contas e operações.
+
+### Funcionalidades para estudo de futuras implementações:
+- Migrar o sistema para uma aplicação web usando flask.
+- Sessões para manter o usuário autenticado e gerenciar acesso.
+- Permitir que o usuário faça movimentações entre contas.
+- Implementação de filtro no histórico de transações.
+- Feedbacks visuais e mensagens para operações web (sucesso/erro).
