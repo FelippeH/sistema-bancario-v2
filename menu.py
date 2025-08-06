@@ -128,8 +128,10 @@ def deposit():
     try:
         value = float(input("Digite o valor do depósito: "))
         transaction = Deposit(value) # Cria uma nova transação de depósito
-        success = customer_obj.make_transactions(transaction) # Registra a transação na conta do cliente
-        if success:
+        result = customer_obj.make_transactions(transaction) # Registra a transação na conta do cliente
+        if result == "daily_transactions_limit_exceeded":
+            print("\n❌ Erro. Limite de transações diárias atingido.")
+        elif result is True:
             print(f"\n✅ Depósito de R$ {value:.2f} realizado com sucesso.")
         else:
             print("\n❌ O valor do depósito não pode ser superior a R$2.500,00.")
@@ -161,7 +163,9 @@ def withdrawal():
         result = customer_obj.make_transactions(transaction)  # Registra a transação na conta do cliente
 
         # Verifica o resultado do saque
-        if result is True:
+        if result == "daily_transactions_limit_exceeded":
+            print("\n❌ Erro. Limite de transações diárias atingido.")
+        elif result is True:
             print(f"\n✅ Saque de R$ {value:.2f} realizado com sucesso.")
         elif result == "limit_exceeded":
             print("\n❌ Erro. O valor do saque é maior que o limite permitido por operação.")

@@ -1,5 +1,24 @@
 from models.transaction import Withdrawal
 from models.history import History
+from datetime import date
+
+def transaction_limit(max_transactions):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            today = date.today()
+
+            todays_transactions = [
+                t for t in self.history._transactions if t.date.date() == today
+            ] # filtra as transações do dia
+
+            # verifica se o número de transações diárias atingiu o limite
+            if len(todays_transactions) >= max_transactions:
+                return "daily_transactions_limit_exceeded"
+            
+            # chama a função original se o limite não foi atingido
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
 
 # classe que representa uma conta bancária.
 class Account:
@@ -37,7 +56,7 @@ class Account:
     def new_account(cls, customer, number):
         return cls(number, customer)
     
-    
+    @transaction_limit(max_transactions=15) # decorador para limitar transações diárias
     def make_transaction(self, transaction):
         return transaction.register(self)
     
