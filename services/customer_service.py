@@ -1,10 +1,11 @@
 from models.customer import Individual
 
+
 # Classe que representa o serviço de gerenciamento de clientes
 class CustomerService:
     def __init__(self):
         self.service_customers = []
-    
+
     # Método para encontrar um cliente pelo CPF
     # utilizo esse método apenas no create_user
     def find_by_cpf_only(self, cpf):
@@ -22,8 +23,7 @@ class CustomerService:
         return None
 
     # Método para encontrar um cliente apenas pela senha
-    # utilizo esse método para solicitar o depósito, saque e exibir extrato. 
-    # Pois como o cliente já está autenticado, não é necessário verificar o CPF novamente.
+    # utilizo esse método para solicitar o depósito, saque e exibir extrato.
     def find_by_password_only(self, password):
         for c in self.service_customers:
             if isinstance(c, Individual) and c.password == password:

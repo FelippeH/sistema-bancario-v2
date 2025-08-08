@@ -1,14 +1,15 @@
-from models.transaction import Deposit, Withdrawal
 from models.account import CheckingAccount
 from models.customer import Individual
+from models.transaction import Deposit, Withdrawal
 from services.customer_service import CustomerService
 from utils.log import transaction_log
 
-class SystemBank: # Classe que representa o sistema bancário
+
+class SystemBank:
     def __init__(self):
         self.bank_customers = []
         self.bank_accounts = []
-        self.customer_service = CustomerService() # Serviço de gerenciamento de clientes
+        self.customer_service = CustomerService()
 
     # Método para criar um novo usuário [1]
     # ele requisita o cpf, nome, endereço e senha do usuário no menu.py
@@ -18,9 +19,11 @@ class SystemBank: # Classe que representa o sistema bancário
             print("\n❌ Já existe um cliente com o CPF informado.")
             return "Error"
 
-        new_customer = Individual(cpf=cpf, name=name, address=address, password=password)
-        
-        self.customer_service.add_customer(new_customer) # Adiciona o novo cliente à lista de clientes
+        new_customer = Individual(
+            cpf=cpf, name=name, address=address, password=password
+        )
+        # Adiciona o novo cliente à lista
+        self.customer_service.add_customer(new_customer)
         print("\n✅ Usuário cadastrado com sucesso.")
         return "Success"
 
@@ -36,31 +39,38 @@ class SystemBank: # Classe que representa o sistema bancário
         account_number = len(self.bank_accounts) + 1
         new_account = CheckingAccount(number=account_number, customer=customer_obj)
 
-        self.bank_accounts.append(new_account) # Adiciona a nova conta à lista de contas do banco
-        customer_obj.add_account(new_account) # Adiciona a nova conta à lista de contas do cliente
+        # Adiciona a nova conta à lista de contas do banco
+        self.bank_accounts.append(new_account)
+        # Adiciona a nova conta à lista de contas do cliente
+        customer_obj.add_account(new_account)
 
         print("\n✅ Conta criada com sucesso.")
         return "Success"
 
     # Método para listar contas [3]
+    @transaction_log
     def list_accounts(self, cpf, password):
         customer_obj = self.customer_service.find_by_cpf_and_password(cpf, password)
 
         if not customer_obj:
             print("\n❌ Verifique as informações e tente novamente.")
             return "Error"
-        
+
         if not customer_obj.accounts:
             print("\n❌ Nenhuma conta cadastrada.")
             print("\n❌ Verifique as informações e tente novamente.")
             return "Error"
-        
-    # Exibe as contas cadastradas
+
+        # Exibe as contas cadastradas
         print("\n======= CONTAS =========")
         for account in customer_obj.accounts:
-            print(f"Conta: {account.number}, Cliente: {account.customer.name}, Saldo: R$ {account.balance:.2f}")
+            print(
+                f"Conta: {account.number}, "
+                f"Cliente: {account.customer.name}, "
+                f"Saldo: R$ {account.balance:.2f}"
+            )
         print("========================")
-        
+
         return "Success"
 
     # método de depósito [4]
@@ -70,20 +80,21 @@ class SystemBank: # Classe que representa o sistema bancário
 
         # Verifica se o cliente existe
         if not customer_obj:
-            print(f"\n❌ Senha incorreta.")
+            print("\n❌ Senha incorreta.")
             print("Verifique as informações, e tente novamente.")
             return "Error"
-        
+
         # Verifica se o cliente possui contas
         if not customer_obj.accounts:
             print("\n❌ Este cliente não possui nenhuma conta corrente cadastrada.")
             return "Error"
 
         # Solicita o valor do depósito
-        transaction = Deposit(value) # Cria uma nova transação de depósito
-        result = customer_obj.make_transactions(transaction) # Registra a transação na conta do cliente
+        transaction = Deposit(value)
+        # Registra a transação na conta do cliente
+        result = customer_obj.make_transactions(transaction)
         if result == "daily_transactions_limit_exceeded":
-            print("\n❌ Error. Limite de transações diárias atingido.")
+            print("\n❌ Limite de transações diárias atingido.")
             return "Error"
         elif result is True:
             print(f"\n✅ Depósito de R$ {value:.2f} realizado com sucesso.")
@@ -98,30 +109,32 @@ class SystemBank: # Classe que representa o sistema bancário
         customer_obj = self.customer_service.find_by_password_only(password)
 
         if not customer_obj:
-            print(f"\n❌ Senha incorreta.")
+            print("\n❌ Senha incorreta.")
             print("Verifique as informações, e tente novamente.")
             return "Error"
-        
+
         if not customer_obj.accounts:
             print("\n❌ Este cliente não possui nenhuma conta corrente cadastrada.")
             return "Error"
-        
+
         # Solicita o valor do saque
-        transaction = Withdrawal(value)  # Cria uma nova transação de saque
-        result = customer_obj.make_transactions(transaction)  # Registra a transação na conta do cliente
+        transaction = Withdrawal(value)
+        # Registra a transação na conta do cliente
+        result = customer_obj.make_transactions(transaction)
 
         # Verifica o resultado do saque
         if result == "daily_transactions_limit_exceeded":
-            print("\n❌ Error. Limite de transações diárias atingido.")
+            print("\n❌ Limite de transações diárias atingido.")
             return "Error"
         elif result == "limit_exceeded":
-            print("\n❌ Error. O valor do saque é maior que o limite permitido por operação.")
+            print("\n❌ O valor do saque é maior que o limite permitido por operação.")
             return "Error"
         elif result == "withdrawal_exceeded":
-            print("\n❌ Error. Número máximo de saques diários atingido.")
+            print("\n❌ Número máximo de saques diários atingido.")
             return "Error"
         elif result == "insufficient_funds":
-            print("\n❌ Falha! Você não tem saldo suficiente na conta. Verifique o saldo e tente novamente.")
+            print("\n❌ Falha! Você não tem saldo suficiente na conta.)")
+            print("(Verifique o saldo e tente novamente.")
             return "Error"
         elif result is True:
             print(f"\n✅ Saque de R$ {value:.2f} realizado com sucesso.")
@@ -129,7 +142,7 @@ class SystemBank: # Classe que representa o sistema bancário
         else:
             print("\n❌ Error inesperado ao tentar realizar o saque.")
             return "Error"
-        
+
     # método de extrato [6]
     @transaction_log
     def show_extract(self, password):
@@ -137,7 +150,7 @@ class SystemBank: # Classe que representa o sistema bancário
 
         # Verifica se o cliente existe
         if not customer_obj:
-            print(f"\n❌ Senha incorreta.")
+            print("\n❌ Senha incorreta.")
             print("Verifique as informações, e tente novamente.")
             return "Error"
         # Verifica se o cliente possui contas
@@ -151,5 +164,5 @@ class SystemBank: # Classe que representa o sistema bancário
         customer_obj.history.show()
         print(f"\nSaldo atual: R$ {customer_obj.balance:.2f}")
         print("========================")
-        
+
         return "Success"

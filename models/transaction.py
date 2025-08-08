@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+
 # Esta classe Transaction não está sendo usada para saques, mas vou manter para contexto
 class Transaction(ABC):
     def __init__(self, value, date=None):
@@ -12,10 +13,11 @@ class Transaction(ABC):
     @property
     def value(self):
         return self._value
-    
-    @abstractmethod # instancia o tipo de transação (depósito ou saque) impedindo a criação de uma transação "genérica"
+
+    @abstractmethod  # instancia o tipo de transação (depósito ou saque) impedindo a criação de uma transação "genérica"
     def register(self, account):
         pass
+
 
 # classe que representa um depósito, herda de 'transaction'
 class Deposit(Transaction):
@@ -26,12 +28,13 @@ class Deposit(Transaction):
             return True
         return False
 
+
 # classe que representa um saque, herda de 'transaction'
 class Withdrawal(Transaction):
     def register(self, account):
         # Captura o resultado da chamada ao método withdrawal da conta
         result = account.withdrawal(self.value)
-        
+
         # Se o resultado for True, o saque foi bem-sucedido
         if result is True:
             account.history.add_transaction(self)
