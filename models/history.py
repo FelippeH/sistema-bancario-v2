@@ -11,11 +11,19 @@ class History:
         if not isinstance(transaction, Transaction):
             raise TypeError("Transação inválida.")
         self._transactions.append(transaction)
-        
+
+    # método para exibir o histórico de transações
     def show(self):
+
+        # mapeia os nomes das transações para exibição no terminal
+        TRANSACTION_NAMES = {
+            "Deposit": "Depósito",
+            "Withdrawal": "Saque"
+        }
         # mostra todas as transações feitas na conta
-        for i, t in enumerate(self._transactions, start=1):
+        for index, t in enumerate(self._transactions, start=1):
             
             # formata a data da transação para exibição
-            date_str = t.date.strftime('%d/%m/%Y %H:%M:%S')
-            print(f"{i}. {t.__class__.__name__} de R$ {t.value:.2f} em {date_str}")
+            date_str = t.date.strftime('%d/%m/%Y às %H:%M:%S')
+            name_pt = TRANSACTION_NAMES.get(t.__class__.__name__, __class__.__name__)
+            print(f"{index}. {name_pt} de R$ {t.value:.2f} efetuado em {date_str}")

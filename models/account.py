@@ -2,6 +2,7 @@ from models.transaction import Withdrawal
 from models.history import History
 from datetime import date
 
+# decorador para limitar o número de transações diárias
 def transaction_limit(max_transactions):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
